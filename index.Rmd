@@ -32,3 +32,168 @@ ORDER BY HR DESC"
 sqldf(query)
 ```
 
+Let's look at another example of ways to order your data. 
+
+ 
+
+### Example 
+
+ 
+
+Question 1: Find all instances of a player striking out less than 10 times. Make sure each player has at least 400 at bats. Order strikeouts from least to greatest. 
+
+ 
+
+```{r} 
+
+query<-"SELECT playerID,yearID,teamID,SO,AB FROM Batting 
+
+WHERE SO<10 and AB>400 
+
+ORDER BY SO" 
+
+sqldf(query) 
+
+``` 
+
+ 
+
+## Aggregation 
+
+ 
+
+Aggregatiion allows one to group and condense information in different ways, essentially 'squashing' different pieces of data together. This is done by using the GROUP BY command. When using GROUP BY, one must then specify how to see the minimum or maximum. These modifiers are placed on the other column names. This is how one would specify what should be done to those data sets:  
+
+*Summation: sum(colname) 
+
+*Average: avg(colname) 
+
+*Maximum: max(colname) 
+
+*Minimum: min(colname) 
+
+If one wants to continue filtering after they have grouped, they can use the HAVING command, which functions as the filtering WHERE command when used after GROUP BY. ORDER BY can be used in the same way as before, coming at the end of the command list. 
+
+ 
+
+### Examples 
+
+Question 1: Find the career homerun totals for Babe Ruth. 
+
+ 
+
+```{r} 
+
+query<-"SELECT playerID,sum(HR) FROM Batting 
+
+WHERE playerID='ruthba01' 
+
+GROUP BY playerID" 
+
+sqldf(query) 
+
+``` 
+
+ 
+
+Question 2: Find the career totals for all players but list only those with a total of 600 or more. Order by having greatest total at the top. 
+
+ 
+
+```{r} 
+
+query<-"SELECT playerID,sum(HR) FROM Batting 
+
+GROUP BY playerID 
+
+HAVING sum(HR)>=600 
+
+ORDER BY sum(HR) DESC" 
+
+sqldf(query) 
+
+``` 
+
+ 
+
+Question 3: What players have the highest average per season homerun totals? List only averages greater than 30. Order from greatest to least. 
+
+ 
+
+```{r} 
+
+query<-"SELECT playerID,avg(HR) FROM Batting 
+
+GROUP BY playerID 
+
+HAVING avg(HR)>30 
+
+ORDER BY avg(HR) DESC" 
+
+sqldf(query) 
+
+``` 
+
+ 
+
+## Joining 
+
+ 
+
+Joining allows tables to be joined together based on common data to increase the data output options. This is done through the INNER JOIN and ON commands. INNER JOIN indicates which tables are being joined together. ON indicates the common data that the tables will be joined by. If the common data appears alone in the code, it will need to either have specified which of the joined tables it is coming from, or be replaced by the information from another table. In the first example, playerID in the SELECT phrase was replaced by nameFIRST and nameLAST to make reading the table easier. 
+
+ 
+
+### Examples 
+
+Question 1: First and last names along with teamID, yearID, and homeruns for Babe Ruth. 
+
+ 
+
+```{r} 
+
+query<-"SELECT nameFIRST,nameLAST,teamID,yearID,HR  
+FROM Batting INNER JOIN Master 
+ON Batting.playerID=Master.playerID 
+WHERE Batting.playerID='ruthba01'" 
+
+sqldf(query) 
+
+``` 
+
+ 
+
+Question 2: Find all instances of players hitting more than 50 homeruns. Include first and last names, team, year, and homeruns in descending order. 
+
+ 
+
+```{r} 
+
+query<-"SELECT nameFirst,nameLast,teamID,yearID,HR 
+FROM Batting INNER JOIN Master 
+ON Batting.playerID=Master.playerID 
+WHERE Batting.HR>50
+ORDER BY HR DESC" 
+
+sqldf(query) 
+``` 
+
+ 
+
+Question 3: Find Babe Ruth's homeruns by season, with the team name displayed. 
+
+ 
+
+```{r} 
+
+query<-"SELECT playerID,name,Batting.yearID,Batting.HR 
+
+FROM Batting INNER JOIN Teams 
+
+ON Batting.teamID=Teams.teamID and Batting.yearID=Teams.yearID 
+
+WHERE playerID='ruthba01'" 
+
+sqldf(query) 
+
+``` 
